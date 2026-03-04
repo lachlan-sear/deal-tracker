@@ -1,60 +1,104 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 
-export default function PasswordGate() {
+export default function PasswordGate({ onSuccess }: { onSuccess: () => void }) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [shaking, setShaking] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError(false);
 
-    const res = await fetch("/api/auth", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password }),
-    });
-
-    if (res.ok) {
-      window.location.reload();
+    if (password === "paddockpass") {
+      document.cookie = "tracker_auth=1; path=/; max-age=" + 60 * 60 * 24 * 30;
+      onSuccess();
     } else {
       setError(true);
-      setLoading(false);
+      setShaking(true);
+      setPassword("");
+      setTimeout(() => setShaking(false), 400);
+      inputRef.current?.focus();
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#09090b]">
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundColor: "#E7F3E9",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col items-center gap-4"
+        className={shaking ? "shake" : ""}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 12,
+        }}
       >
-        <div className="font-mono text-xs text-zinc-600 tracking-widest uppercase mb-2">
-          deal-tracker
+        <div
+          style={{
+            fontFamily: "'Lora', serif",
+            fontWeight: 600,
+            fontSize: 18,
+            letterSpacing: "0.2em",
+            color: "#1A1A1A",
+            textTransform: "uppercase",
+            marginBottom: 2,
+          }}
+        >
+          LACHLAN SEAR
+        </div>
+        <div
+          style={{
+            fontFamily: "'IBM Plex Sans', sans-serif",
+            fontSize: 14,
+            color: "#6B6B6B",
+            marginBottom: 16,
+          }}
+        >
+          Deal Pipeline
         </div>
         <input
+          ref={inputRef}
           type="password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
+          onChange={(e) => {
+            setPassword(e.target.value);
+            if (error) setError(false);
+          }}
+          placeholder={error ? "Try again" : "Password"}
           autoFocus
-          className="bg-zinc-900 border border-zinc-800 rounded px-4 py-2.5 text-zinc-200 font-mono text-sm focus:outline-none focus:border-zinc-600 w-64 placeholder:text-zinc-600 transition-colors"
+          style={{
+            backgroundColor: "#FFFFFF",
+            border: `1px solid ${error ? "#e57373" : "#C0C0C0"}`,
+            borderRadius: 8,
+            padding: "10px 16px",
+            color: "#1A1A1A",
+            fontFamily: "'IBM Plex Sans', sans-serif",
+            fontSize: 16,
+            outline: "none",
+            width: 280,
+            transition: "border-color 0.15s",
+          }}
+          onFocus={(e) => {
+            if (!error) e.currentTarget.style.borderColor = "#8cc49a";
+          }}
+          onBlur={(e) => {
+            if (!error) e.currentTarget.style.borderColor = "#C0C0C0";
+          }}
         />
         {error && (
-          <div className="text-red-500/80 text-xs font-mono">
-            Invalid password
-          </div>
+          <style>{`input::placeholder { color: #e57373 !important; }`}</style>
         )}
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-mono text-sm px-6 py-2 rounded transition-colors disabled:opacity-50 w-64"
-        >
-          {loading ? "..." : "Enter"}
-        </button>
+        <button type="submit" style={{ display: "none" }} />
       </form>
     </div>
   );

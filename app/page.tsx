@@ -1,24 +1,32 @@
-import { cookies } from "next/headers";
-import { createHash } from "crypto";
+"use client";
+
+import { useState, useEffect } from "react";
 import DealTracker from "@/components/DealTracker";
 import PasswordGate from "@/components/PasswordGate";
 
+function getCookie(name: string): string | null {
+  const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
+  return match ? decodeURIComponent(match[2]) : null;
+}
+
 export default function Page() {
-  const cookieStore = cookies();
-  const token = cookieStore.get("tracker_auth")?.value;
-  const password = process.env.TRACKER_PASSWORD;
+  const [authed, setAuthed] = useState<boolean | null>(null);
 
-  let isAuthed = false;
-  if (password && token) {
-    const expectedToken = createHash("sha256")
-      .update(password + "deal-tracker-salt")
-      .digest("hex");
-    isAuthed = token === expectedToken;
+  useEffect(() => {
+    setAuthed(getCookie("tracker_auth") === "1");
+  }, []);
+
+  if (authed === null) {
+    return <div style={{ minHeight: "100vh", backgroundColor: "#E7F3E9" }} />;
   }
 
-  if (!isAuthed) {
-    return <PasswordGate />;
+  if (!authed) {
+    return <PasswordGate onSuccess={() => setAuthed(true)} />;
   }
 
-  return <DealTracker />;
+  return (
+    <div className="fade-in">
+      <DealTracker />
+    </div>
+  );
 }

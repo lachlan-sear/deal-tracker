@@ -9,8 +9,8 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"DM Sans"', "sans-serif"],
-        mono: ['"JetBrains Mono"', "monospace"],
+        sans: ['"IBM Plex Sans"', "sans-serif"],
+        serif: ['"Lora"', "serif"],
       },
     },
   },

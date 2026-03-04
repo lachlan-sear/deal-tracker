@@ -3,13 +3,13 @@
 @tailwind utilities;
 
 body {
-  background-color: #09090b;
-  color: #e4e4e7;
+  background-color: #E7F3E9;
+  color: #1A1A1A;
 }
 
 ::selection {
-  background-color: #27272a;
-  color: #fafafa;
+  background-color: #b6dbc0;
+  color: #1A1A1A;
 }
 
 ::-webkit-scrollbar {
@@ -18,14 +18,36 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #09090b;
+  background: #E7F3E9;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #27272a;
+  background: #b6dbc0;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3f3f46;
+  background: #8cc49a;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  15% { transform: translateX(-6px); }
+  30% { transform: translateX(5px); }
+  45% { transform: translateX(-4px); }
+  60% { transform: translateX(3px); }
+  75% { transform: translateX(-2px); }
+}
+
+.shake {
+  animation: shake 0.4s ease-in-out;
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
